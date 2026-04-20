@@ -119,5 +119,22 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Prompt', system-ui, sans-serif;
+    background-image:
+      radial-gradient(at 20% 0%, hsl(var(--brand) / 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsl(var(--brand-glow) / 0.08) 0px, transparent 50%);
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .table-cell-available {
+    @apply bg-[hsl(var(--table-available))] border-[hsl(var(--table-available-border))] text-[hsl(var(--table-available-fg))] hover:scale-105 hover:shadow-lg;
+  }
+  .table-cell-mine {
+    @apply bg-[hsl(var(--table-mine))] border-[hsl(var(--table-mine-border))] text-[hsl(var(--table-mine-fg))] shadow-md hover:opacity-90;
+  }
+  .table-cell-other {
+    @apply bg-[hsl(var(--table-other))] border-[hsl(var(--table-other-border))] text-[hsl(var(--table-other-fg))] shadow-sm cursor-not-allowed;
   }
 }
