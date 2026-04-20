@@ -1,15 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Shabu booking design system. All colors HSL. */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 30 40% 97%;
+    --foreground: 20 30% 12%;
+
+    /* Brand: warm shabu/hotpot palette */
+    --brand: 12 85% 55%;
+    --brand-foreground: 0 0% 100%;
+    --brand-glow: 18 90% 65%;
+
+    /* Table states */
+    --table-available: 142 60% 92%;
+    --table-available-border: 142 50% 60%;
+    --table-available-fg: 142 60% 25%;
+
+    --table-mine: 220 90% 56%;
+    --table-mine-border: 220 90% 45%;
+    --table-mine-fg: 0 0% 100%;
+
+    --table-other: 0 80% 58%;
+    --table-other-border: 0 80% 45%;
+    --table-other-fg: 0 0% 100%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
