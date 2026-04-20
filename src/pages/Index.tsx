@@ -5,8 +5,10 @@ import { getDeviceId } from "@/lib/device";
 import { TableCell } from "@/components/TableCell";
 import { BookingDialog } from "@/components/BookingDialog";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ApiDocs } from "@/components/ApiDocs";
 import { toast } from "sonner";
-import { UtensilsCrossed, Clock } from "lucide-react";
+import { UtensilsCrossed, Clock, Code2, LayoutGrid } from "lucide-react";
 
 const TIME_SLOTS = ["16:00", "18:00", "20:00"] as const;
 const FLOORS = [1, 2] as const;
@@ -93,6 +95,19 @@ const Index = () => {
         </p>
       </header>
 
+      <Tabs defaultValue="booking" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="booking">
+            <LayoutGrid className="w-4 h-4 mr-1.5" />
+            จองโต๊ะ
+          </TabsTrigger>
+          <TabsTrigger value="api">
+            <Code2 className="w-4 h-4 mr-1.5" />
+            API Docs
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="booking" className="mt-0">
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <StatCard label="โต๊ะทั้งหมด" value={totalSeats} />
@@ -188,6 +203,12 @@ const Index = () => {
           onConfirm={handleBookConfirm}
         />
       )}
+        </TabsContent>
+
+        <TabsContent value="api" className="mt-0">
+          <ApiDocs />
+        </TabsContent>
+      </Tabs>
     </main>
   );
 };
