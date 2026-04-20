@@ -162,23 +162,22 @@ export function ApiDocs() {
       <Endpoint
         method="GET"
         name="1. ดูโต๊ะที่ว่าง"
-        desc="คืนรายการโต๊ะที่ยังว่างอยู่ ถ้าไม่ใส่ floor หรือ time_slot จะคืนทั้งหมด"
-        url={`GET ${BASE_URL}/api-available-tables?floor=1&time_slot=18:00`}
+        desc="คืนรายการโต๊ะที่ยังว่างอยู่ ถ้าไม่ใส่ floor จะคืนทั้งหมดทั้ง 2 ชั้น"
+        url={`GET ${BASE_URL}/api-available-tables?floor=1`}
         params={[
           { name: "floor", type: "number (1-2)", required: false, desc: "ชั้น" },
-          { name: "time_slot", type: "string", required: false, desc: "16:00, 18:00 หรือ 20:00" },
         ]}
         example={`curl -H "apikey: ${ANON_KEY}" \\
   -H "Authorization: Bearer ${ANON_KEY}" \\
-  "${BASE_URL}/api-available-tables?floor=1&time_slot=18:00"`}
+  "${BASE_URL}/api-available-tables?floor=1"`}
         responses={[
           {
             status: "200 OK",
             body: `{
   "count": 18,
   "available": [
-    { "floor": 1, "table_number": 1, "time_slot": "18:00" },
-    { "floor": 1, "table_number": 2, "time_slot": "18:00" }
+    { "floor": 1, "table_number": 1 },
+    { "floor": 1, "table_number": 2 }
   ]
 }`,
           },
@@ -193,14 +192,13 @@ export function ApiDocs() {
         params={[
           { name: "nickname", type: "string", required: true, desc: "ชื่อเล่น (1-50 ตัวอักษร)" },
           { name: "floor", type: "number", required: true, desc: "ชั้น 1 หรือ 2" },
-          { name: "time_slot", type: "string", required: true, desc: "16:00, 18:00 หรือ 20:00" },
           { name: "table_number", type: "number", required: true, desc: "เลขโต๊ะ 1-20" },
         ]}
         example={`curl -X POST "${BASE_URL}/api-book-table" \\
   -H "apikey: ${ANON_KEY}" \\
   -H "Authorization: Bearer ${ANON_KEY}" \\
   -H "Content-Type: application/json" \\
-  -d '{"nickname":"ภูริช","floor":1,"time_slot":"18:00","table_number":5}'`}
+  -d '{"nickname":"ภูริช","floor":1,"table_number":5}'`}
         responses={[
           {
             status: "200 OK (จองสำเร็จ)",
@@ -221,14 +219,13 @@ export function ApiDocs() {
         params={[
           { name: "nickname", type: "string", required: true, desc: "ชื่อเล่นที่ใช้ตอนจอง" },
           { name: "floor", type: "number", required: true, desc: "ชั้น 1 หรือ 2" },
-          { name: "time_slot", type: "string", required: true, desc: "16:00, 18:00 หรือ 20:00" },
           { name: "table_number", type: "number", required: true, desc: "เลขโต๊ะ 1-20" },
         ]}
         example={`curl -X POST "${BASE_URL}/api-release-table" \\
   -H "apikey: ${ANON_KEY}" \\
   -H "Authorization: Bearer ${ANON_KEY}" \\
   -H "Content-Type: application/json" \\
-  -d '{"nickname":"ภูริช","floor":1,"time_slot":"18:00","table_number":5}'`}
+  -d '{"nickname":"ภูริช","floor":1,"table_number":5}'`}
         responses={[
           {
             status: "200 OK",

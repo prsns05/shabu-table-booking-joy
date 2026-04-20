@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApiDocs } from "@/components/ApiDocs";
 import { toast } from "sonner";
-import { UtensilsCrossed, Clock, Code2, LayoutGrid } from "lucide-react";
+import { UtensilsCrossed, Code2, LayoutGrid } from "lucide-react";
 
-const TIME_SLOTS = ["16:00", "18:00", "20:00"] as const;
+const FIXED_SLOT = "all";
 const FLOORS = [1, 2] as const;
 const TABLES_PER_FLOOR = 20;
 
@@ -18,22 +18,18 @@ const Index = () => {
   const deviceId = useMemo(() => getDeviceId(), []);
   const { reservations, loading } = useReservations();
   const [activeFloor, setActiveFloor] = useState<1 | 2>(1);
-  const [activeSlot, setActiveSlot] = useState<string>("18:00");
   const [dialogTable, setDialogTable] = useState<number | null>(null);
 
-  const slotReservations = reservations.filter(
-    (r) => r.floor === activeFloor && r.time_slot === activeSlot
-  );
+  const floorReservations = reservations.filter((r) => r.floor === activeFloor);
 
-  const totalSeats = FLOORS.length * TABLES_PER_FLOOR * TIME_SLOTS.length;
+  const totalSeats = FLOORS.length * TABLES_PER_FLOOR;
   const totalBooked = reservations.length;
   const totalAvailable = totalSeats - totalBooked;
 
-  const floorSlotAvailable =
-    TABLES_PER_FLOOR - slotReservations.length;
+  const floorAvailable = TABLES_PER_FLOOR - floorReservations.length;
 
   const findReservation = (table: number): Reservation | undefined =>
-    slotReservations.find((r) => r.table_number === table);
+    floorReservations.find((r) => r.table_number === table);
 
   const handleTableClick = async (table: number) => {
     const existing = findReservation(table);
@@ -45,7 +41,6 @@ const Index = () => {
       toast.error("โต๊ะนี้คนอื่นจองไว้แล้ว");
       return;
     }
-    // Cancel own reservation via edge function
     const { data, error } = await supabase.functions.invoke(
       "cancel-reservation",
       {
@@ -64,7 +59,7 @@ const Index = () => {
     const { error } = await supabase.from("reservations").insert({
       floor: activeFloor,
       table_number: dialogTable,
-      time_slot: activeSlot,
+      time_slot: FIXED_SLOT,
       nickname,
       device_id: deviceId,
     });
@@ -91,7 +86,7 @@ const Index = () => {
           จองโต๊ะออนไลน์
         </h1>
         <p className="text-muted-foreground mt-2">
-          เลือกชั้นและรอบเวลาที่ต้องการ • อัปเดตแบบเรียลไทม์
+          เลือกชั้นที่ต้องการ • อัปเดตแบบเรียลไทม์
         </p>
       </header>
 
@@ -108,101 +103,83 @@ const Index = () => {
         </TabsList>
 
         <TabsContent value="booking" className="mt-0">
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <StatCard label="โต๊ะทั้งหมด" value={totalSeats} />
-        <StatCard
-          label="ว่าง"
-          value={totalAvailable}
-          valueClass="text-[hsl(var(--table-available-fg))]"
-        />
-        <StatCard
-          label="ถูกจอง"
-          value={totalBooked}
-          valueClass="text-[hsl(var(--brand))]"
-        />
-      </div>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <StatCard label="โต๊ะทั้งหมด" value={totalSeats} />
+            <StatCard
+              label="ว่าง"
+              value={totalAvailable}
+              valueClass="text-[hsl(var(--table-available-fg))]"
+            />
+            <StatCard
+              label="ถูกจอง"
+              value={totalBooked}
+              valueClass="text-[hsl(var(--brand))]"
+            />
+          </div>
 
-      {/* Floor selector */}
-      <div className="flex gap-2 mb-4">
-        {FLOORS.map((f) => (
-          <Button
-            key={f}
-            variant={activeFloor === f ? "default" : "outline"}
-            onClick={() => setActiveFloor(f)}
-            className="flex-1 h-12 text-base font-semibold"
-          >
-            ชั้น {f}
-          </Button>
-        ))}
-      </div>
+          {/* Floor selector */}
+          <div className="flex gap-2 mb-4">
+            {FLOORS.map((f) => (
+              <Button
+                key={f}
+                variant={activeFloor === f ? "default" : "outline"}
+                onClick={() => setActiveFloor(f)}
+                className="flex-1 h-12 text-base font-semibold"
+              >
+                ชั้น {f}
+              </Button>
+            ))}
+          </div>
 
-      {/* Time slot selector */}
-      <div className="flex gap-2 mb-4">
-        {TIME_SLOTS.map((slot) => (
-          <Button
-            key={slot}
-            variant={activeSlot === slot ? "secondary" : "ghost"}
-            onClick={() => setActiveSlot(slot)}
-            className="flex-1 h-11"
-          >
-            <Clock className="w-4 h-4 mr-1" />
-            {slot}
-          </Button>
-        ))}
-      </div>
+          {/* Status of current view */}
+          <div className="flex items-center justify-between mb-4 px-1 text-sm">
+            <span className="text-muted-foreground">ชั้น {activeFloor}</span>
+            <span className="font-semibold">
+              ว่าง {floorAvailable}/{TABLES_PER_FLOOR} โต๊ะ
+            </span>
+          </div>
 
-      {/* Status of current view */}
-      <div className="flex items-center justify-between mb-4 px-1 text-sm">
-        <span className="text-muted-foreground">
-          ชั้น {activeFloor} • รอบ {activeSlot} น.
-        </span>
-        <span className="font-semibold">
-          ว่าง {floorSlotAvailable}/{TABLES_PER_FLOOR} โต๊ะ
-        </span>
-      </div>
+          {/* Legend */}
+          <div className="flex flex-wrap gap-3 mb-4 text-xs">
+            <LegendDot className="bg-[hsl(var(--table-available))] border-[hsl(var(--table-available-border))]" label="ว่าง" />
+            <LegendDot className="bg-[hsl(var(--table-mine))]" label="ของคุณ" />
+            <LegendDot className="bg-[hsl(var(--table-other))]" label="คนอื่นจอง" />
+          </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 mb-4 text-xs">
-        <LegendDot className="bg-[hsl(var(--table-available))] border-[hsl(var(--table-available-border))]" label="ว่าง" />
-        <LegendDot className="bg-[hsl(var(--table-mine))]" label="ของคุณ" />
-        <LegendDot className="bg-[hsl(var(--table-other))]" label="คนอื่นจอง" />
-      </div>
-
-      {/* Tables grid */}
-      {loading ? (
-        <div className="text-center py-12 text-muted-foreground">
-          กำลังโหลด...
-        </div>
-      ) : (
-        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
-          {Array.from({ length: TABLES_PER_FLOOR }, (_, i) => i + 1).map(
-            (n) => {
-              const res = findReservation(n);
-              return (
-                <TableCell
-                  key={n}
-                  tableNumber={n}
-                  reservation={res}
-                  isMine={!!res && res.device_id === deviceId}
-                  onClick={() => handleTableClick(n)}
-                />
-              );
-            }
+          {/* Tables grid */}
+          {loading ? (
+            <div className="text-center py-12 text-muted-foreground">
+              กำลังโหลด...
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
+              {Array.from({ length: TABLES_PER_FLOOR }, (_, i) => i + 1).map(
+                (n) => {
+                  const res = findReservation(n);
+                  return (
+                    <TableCell
+                      key={n}
+                      tableNumber={n}
+                      reservation={res}
+                      isMine={!!res && res.device_id === deviceId}
+                      onClick={() => handleTableClick(n)}
+                    />
+                  );
+                }
+              )}
+            </div>
           )}
-        </div>
-      )}
 
-      {dialogTable !== null && (
-        <BookingDialog
-          open={dialogTable !== null}
-          onOpenChange={(v) => !v && setDialogTable(null)}
-          floor={activeFloor}
-          tableNumber={dialogTable}
-          timeSlot={activeSlot}
-          onConfirm={handleBookConfirm}
-        />
-      )}
+          {dialogTable !== null && (
+            <BookingDialog
+              open={dialogTable !== null}
+              onOpenChange={(v) => !v && setDialogTable(null)}
+              floor={activeFloor}
+              tableNumber={dialogTable}
+              onConfirm={handleBookConfirm}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="api" className="mt-0">

@@ -7,7 +7,6 @@ const corsHeaders = {
 };
 
 const FLOORS = [1, 2];
-const TIME_SLOTS = ["16:00", "18:00", "20:00"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -16,12 +15,10 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const nickname = String(body.nickname ?? "").trim();
     const floor = Number(body.floor);
-    const time_slot = String(body.time_slot ?? "");
     const table_number = Number(body.table_number);
 
     if (!nickname) return jsonErr("nickname is required", 400);
     if (!FLOORS.includes(floor)) return jsonErr("floor must be 1 or 2", 400);
-    if (!TIME_SLOTS.includes(time_slot)) return jsonErr("invalid time_slot", 400);
     if (!Number.isInteger(table_number) || table_number < 1 || table_number > 20) {
       return jsonErr("table_number must be 1-20", 400);
     }
@@ -35,7 +32,6 @@ Deno.serve(async (req) => {
       .from("reservations")
       .select("id, nickname")
       .eq("floor", floor)
-      .eq("time_slot", time_slot)
       .eq("table_number", table_number)
       .maybeSingle();
 
