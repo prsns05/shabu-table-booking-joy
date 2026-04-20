@@ -16,7 +16,6 @@ type Props = {
   onOpenChange: (v: boolean) => void;
   floor: number;
   tableNumber: number;
-  timeSlot: string;
   onConfirm: (nickname: string) => Promise<void>;
 };
 
@@ -25,7 +24,6 @@ export function BookingDialog({
   onOpenChange,
   floor,
   tableNumber,
-  timeSlot,
   onConfirm,
 }: Props) {
   const [nickname, setNickname] = useState("");
@@ -51,9 +49,7 @@ export function BookingDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>จองโต๊ะ #{tableNumber}</DialogTitle>
-            <DialogDescription>
-              ชั้น {floor} • รอบเวลา {timeSlot} น.
-            </DialogDescription>
+            <DialogDescription>ชั้น {floor}</DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-2">
             <Label htmlFor="nickname">ชื่อเล่นของคุณ</Label>
