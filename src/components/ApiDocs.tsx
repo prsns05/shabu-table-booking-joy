@@ -159,6 +159,53 @@ export function ApiDocs() {
         </div>
       </Card>
 
+      <Card className="p-4 sm:p-5">
+        <h2 className="font-bold text-lg mb-2">🗄️ แหล่งเก็บข้อมูล</h2>
+        <p className="text-sm text-muted-foreground mb-3">
+          API ทั้ง 3 ตัวอ่าน/เขียนข้อมูลจากตารางเดียวคือ{" "}
+          <code className="bg-muted px-1 rounded">reservations</code> ในฐานข้อมูล Lovable Cloud (Postgres)
+        </p>
+        <div className="text-xs font-semibold text-muted-foreground mb-1.5">
+          โครงสร้างตาราง <span className="font-mono">public.reservations</span>
+        </div>
+        <div className="border rounded-lg overflow-hidden mb-3">
+          <table className="w-full text-xs">
+            <thead className="bg-muted/40">
+              <tr>
+                <th className="text-left p-2 font-semibold">คอลัมน์</th>
+                <th className="text-left p-2 font-semibold">ประเภท</th>
+                <th className="text-left p-2 font-semibold">คำอธิบาย</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono">
+              {[
+                ["id", "uuid", "primary key (auto)"],
+                ["floor", "integer", "ชั้น 1 หรือ 2"],
+                ["table_number", "integer", "เลขโต๊ะ 1-20"],
+                ["time_slot", "text", 'fix เป็น "all"'],
+                ["nickname", "text", "ชื่อเล่นผู้จอง"],
+                ["device_id", "text", 'API ใส่เป็น "api:<nickname>"'],
+                ["created_at", "timestamptz", "เวลาที่จอง (auto)"],
+              ].map(([c, t, d]) => (
+                <tr key={c} className="border-t">
+                  <td className="p-2">{c}</td>
+                  <td className="p-2 text-muted-foreground">{t}</td>
+                  <td className="p-2 text-muted-foreground font-sans">{d}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="text-xs font-semibold text-muted-foreground mb-1.5">
+          การทำงานของแต่ละ endpoint
+        </div>
+        <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-5">
+          <li><code className="bg-muted px-1 rounded">api-available-tables</code> → SELECT จาก reservations แล้วเทียบกับโต๊ะทั้งหมดเพื่อหาที่ว่าง</li>
+          <li><code className="bg-muted px-1 rounded">api-book-table</code> → INSERT แถวใหม่ (ถ้าซ้ำ unique = ช่องไม่ว่าง)</li>
+          <li><code className="bg-muted px-1 rounded">api-release-table</code> → DELETE แถวที่ตรง nickname + floor + table_number</li>
+        </ul>
+      </Card>
+
       <Endpoint
         method="GET"
         name="1. ดูโต๊ะที่ว่าง"
